@@ -12,6 +12,7 @@ type Morphism interface {
 	String() string
 	Apply(*Outcome, Parameter) (*Outcome, error)
 	EnumerateParameters() (ParameterEnumeration, error)
+	Awards() []Award
 }
 
 /*
@@ -21,25 +22,29 @@ type IdentityMorphism struct {
 	Name string
 }
 
-func (i *IdentityMorphism) Init() error {
+func (M *IdentityMorphism) Init() error {
 	return nil
 }
 
-func (i *IdentityMorphism) String() string {
-	return i.Name
+func (M *IdentityMorphism) String() string {
+	return M.Name
 }
 
-func (i *IdentityMorphism) Apply(o *Outcome, sigma Parameter) (*Outcome, error) {
+func (M *IdentityMorphism) Apply(o *Outcome, sigma Parameter) (*Outcome, error) {
 	return o, nil
 }
 
-func (i *IdentityMorphism) EnumerateParameters() (ParameterEnumeration, error) {
+func (M *IdentityMorphism) EnumerateParameters() (ParameterEnumeration, error) {
 	return &ConstantParameterEnumerateion{
 			ParameterEnumerateionBase: ParameterEnumerateionBase{
-				M: i,
+				M: M,
 			},
 			C: nil},
 		nil
+}
+
+func (M *IdentityMorphism) Awards() []Award {
+	return nil
 }
 
 /*
@@ -50,8 +55,8 @@ type ConcatenationMorphism struct {
 	Morphisms []Morphism
 
 	Expand       bool
-	GatherStates bool
-	GatherAwards bool
+	IgnoreStates bool
+	IgnoreAwards bool
 }
 
 func (M *ConcatenationMorphism) Init() error {
@@ -68,7 +73,35 @@ func (M *ConcatenationMorphism) String() string {
 }
 
 func (M *ConcatenationMorphism) tidyOutcome(root, end *Outcome) (*Outcome, error) {
-	return nil, nil
+	if M.Expand {
+		return &Outcome{
+			Previous: end,
+			M:        M,
+			State:    nil,
+			Awards:   nil,
+		}, nil
+	} else {
+		var states GameState
+		var awards []Award
+
+		if M.IgnoreStates {
+			states = end.State
+		} else {
+			states = &SequenceGameState{States: end.AccumulateStates(root)}
+		}
+		if M.IgnoreAwards {
+			awards = end.Awards
+		} else {
+			awards = end.AccumulateAwards(root)
+		}
+
+		return &Outcome{
+			Previous: root,
+			M:        M,
+			State:    states,
+			Awards:   awards,
+		}, nil
+	}
 }
 
 func (M *ConcatenationMorphism) Apply(root *Outcome, sigma Parameter) (*Outcome, error) {
@@ -102,4 +135,12 @@ func (M *ConcatenationMorphism) EnumerateParameters() (ParameterEnumeration, err
 		enumerations[i] = e
 	}
 	return nil, nil
+}
+
+func (M *ConcatenationMorphism) Awards() []Award {
+	rtn := make([]Award, 0)
+	for _, a := range M.Morphisms {
+		rtn = append(rtn, a.Awards()...)
+	}
+	return rtn
 }
