@@ -8,26 +8,40 @@ import (
 
 func main() {
 
-	parameterization := representation.ConcatenationParameterization{
+	idMorphism := &representation.IdentityMorphism{
+		Name: "id",
+	}
+
+	parameterization := &representation.ConcatenationParameterization{
 		Parameterizations: []representation.Parameterization{
 			&representation.IntegerIntervalParameterization{
 				LowerBound: 0,
 				UpperBound: 3,
-				// Weights:    []uint64{3, 2, 1},
+				Weights:    []uint64{3, 2, 1},
 			},
 			&representation.IntegerIntervalParameterization{
 				LowerBound: 5,
 				UpperBound: 8,
-				// Weights:    []uint64{2, 2, 2},
+				Weights:    []uint64{2, 2, 2},
 			},
 		},
 	}
 
-	size := parameterization.EnumerationCardinality()
-	weight := parameterization.WeightedEnumerationCardinality()
+	parameterization.Parameterizations[0].AssignMorphism(idMorphism)
+
+	frozenParameters := map[string]representation.Parameterization{
+		idMorphism.Name: &representation.ConstantParameterization{
+			C: 0,
+		},
+	}
+
+	frozenPerameterization := parameterization.Freeze(frozenParameters)
+
+	size := frozenPerameterization.EnumerationCardinality()
+	weight := frozenPerameterization.WeightedEnumerationCardinality()
 	fmt.Println(size, weight)
 	for i := uint64(0); i < weight; i++ {
-		p := parameterization.WeightedEnumeration(i).Value()
+		p := frozenPerameterization.WeightedEnumeration(i).Value()
 		fmt.Println(p)
 	}
 }
