@@ -8,26 +8,26 @@ import (
 
 func main() {
 
-	enumeration := representation.ConcatenationParameterEnumerateion{
-		Enumerations: []representation.ParameterEnumeration{
-			&representation.IntegerIntervalParameterEnumerateion{
+	parameterization := representation.ConcatenationParameterization{
+		Parameterizations: []representation.Parameterization{
+			&representation.IntegerIntervalParameterization{
 				LowerBound: 0,
 				UpperBound: 3,
-				Weights:    []uint64{3, 2, 1},
+				// Weights:    []uint64{3, 2, 1},
 			},
-			&representation.IntegerIntervalParameterEnumerateion{
+			&representation.IntegerIntervalParameterization{
 				LowerBound: 5,
 				UpperBound: 8,
-				Weights:    []uint64{2, 2, 2},
+				// Weights:    []uint64{2, 2, 2},
 			},
 		},
 	}
 
-	size := enumeration.Length()
-	weight := enumeration.Weight()
+	size := parameterization.EnumerationCardinality()
+	weight := parameterization.WeightedEnumerationCardinality()
 	fmt.Println(size, weight)
 	for i := uint64(0); i < weight; i++ {
-		p := enumeration.GetWeighted(i).Value()
+		p := parameterization.WeightedEnumeration(i).Value()
 		fmt.Println(p)
 	}
 }

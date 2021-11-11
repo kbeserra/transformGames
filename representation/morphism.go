@@ -11,7 +11,7 @@ type Morphism interface {
 	Init() error
 	String() string
 	Apply(*Outcome, Parameter) (*Outcome, error)
-	EnumerateParameters() (ParameterEnumeration, error)
+	EnumerateParameters() (Parameterization, error)
 	Awards() []Award
 }
 
@@ -34,9 +34,9 @@ func (M *IdentityMorphism) Apply(o *Outcome, sigma Parameter) (*Outcome, error) 
 	return o, nil
 }
 
-func (M *IdentityMorphism) EnumerateParameters() (ParameterEnumeration, error) {
-	return &ConstantParameterEnumerateion{
-			ParameterEnumerateionBase: ParameterEnumerateionBase{
+func (M *IdentityMorphism) EnumerateParameters() (Parameterization, error) {
+	return &ConstantParameterization{
+			ParameterizationBase: ParameterizationBase{
 				M: M,
 			},
 			C: nil},
@@ -125,8 +125,8 @@ func (M *ConcatenationMorphism) Apply(root *Outcome, sigma Parameter) (*Outcome,
 	return M.tidyOutcome(root, p)
 }
 
-func (M *ConcatenationMorphism) EnumerateParameters() (ParameterEnumeration, error) {
-	enumerations := make([]ParameterEnumeration, len(M.Morphisms))
+func (M *ConcatenationMorphism) EnumerateParameters() (Parameterization, error) {
+	enumerations := make([]Parameterization, len(M.Morphisms))
 	for i, m := range M.Morphisms {
 		e, err := m.EnumerateParameters()
 		if err != nil {
