@@ -124,23 +124,24 @@ type IntegerIntervalParameterEnumerateion struct {
 	// We include the lower bound, exclude the upper.
 	LowerBound int
 	UpperBound int
-	Weights    []int
+	Weights    []uint64
 
-	cached bool
-	weight uint64
+	cached             bool
+	cummulativeWeights []uint64
 }
 
 func (iipe *IntegerIntervalParameterEnumerateion) cache() {
-
-	if iipe.Weights != nil {
-		iipe.weight = 0
-		for i := 0; i < (iipe.UpperBound - iipe.LowerBound); i++ {
-			iipe.weight += uint64(iipe.Weights[i])
+	iipe.cummulativeWeights = make([]uint64, uint64(iipe.UpperBound-iipe.LowerBound))
+	var w uint64 = 0
+	for i := 0; i < (iipe.UpperBound - iipe.LowerBound); i++ {
+		if iipe.Weights != nil {
+			w += iipe.Weights[i]
+		} else {
+			w++
 		}
-	} else {
-		iipe.weight = uint64(iipe.UpperBound - iipe.LowerBound)
+		iipe.cummulativeWeights[i] = w
 	}
-
+	iipe.cached = true
 }
 
 func (iipe *IntegerIntervalParameterEnumerateion) Get(n uint64) (Parameter, uint64) {
@@ -162,15 +163,8 @@ func (iipe *IntegerIntervalParameterEnumerateion) GetWeighted(n uint64) Paramete
 	if !iipe.cached {
 		iipe.cache()
 	}
-
 	var i uint64 = 0
-	if iipe.Weights != nil {
-		for n > 0 {
-			n -= uint64(iipe.Weights[i])
-			i++
-		}
-	} else {
-		i = n
+	for ; iipe.cummulativeWeights[i] <= n; i++ {
 	}
 	return &ConstantParameter{
 		C: iipe.LowerBound + int(i),
@@ -188,7 +182,7 @@ func (iipe *IntegerIntervalParameterEnumerateion) Weight() uint64 {
 	if !iipe.cached {
 		iipe.cache()
 	}
-	return iipe.weight
+	return iipe.cummulativeWeights[len(iipe.cummulativeWeights)-1]
 }
 
 func (iipe *IntegerIntervalParameterEnumerateion) AssociatedMorphism() Morphism {
