@@ -19,7 +19,7 @@ const (
 	BoardEmptyCellString       = ""
 )
 
-func (b *Board) String() string {
+func (b Board) String() string {
 	var sb strings.Builder
 
 	n := 0
@@ -29,18 +29,32 @@ func (b *Board) String() string {
 		}
 	}
 
+	var err error
 	for i := 0; i < n; i++ {
 		for j, col := range b.Symbols {
 			if i < len(col) {
 				if len(col[i]) < BoardSymbolStringMaxLength {
-					sb.WriteString(strings.Repeat(" ", BoardSymbolStringMaxLength-len(col[i])))
+					_, err = sb.WriteString(strings.Repeat(" ", BoardSymbolStringMaxLength-len(col[i])))
 				}
-				sb.WriteString(col[i][:BoardSymbolStringMaxLength])
+				if err != nil {
+					panic(err)
+				}
+				if len(col[i]) < BoardSymbolStringMaxLength {
+					_, err = sb.WriteString(col[i])
+				} else {
+					_, err = sb.WriteString(col[i][:BoardSymbolStringMaxLength])
+				}
 			} else {
-				sb.WriteString(strings.Repeat(BoardEmptyCellSymbol, BoardSymbolStringMaxLength))
+				_, err = sb.WriteString(strings.Repeat(BoardEmptyCellSymbol, BoardSymbolStringMaxLength))
+			}
+			if err != nil {
+				panic(err)
 			}
 			if j+1 < len(b.Symbols) {
-				sb.WriteString("\t")
+				_, err = sb.WriteString("\t")
+			}
+			if err != nil {
+				panic(err)
 			}
 		}
 		sb.WriteString("\n")
@@ -48,7 +62,7 @@ func (b *Board) String() string {
 	return sb.String()
 }
 
-func (b *Board) Copy() representation.GameState {
+func (b Board) Copy() representation.GameState {
 	symbs := make([][]string, len(b.Symbols))
 	for i, col := range b.Symbols {
 		symbs[i] = make([]string, len(col))
@@ -59,7 +73,7 @@ func (b *Board) Copy() representation.GameState {
 	}
 }
 
-func (b *Board) FromShape(shape []int) error {
+func (b *Board) FromShape(shape []uint) error {
 	b.Symbols = make([][]string, len(shape))
 	for i, n := range shape {
 		b.Symbols[i] = make([]string, n)

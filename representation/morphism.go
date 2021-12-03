@@ -3,7 +3,7 @@ package representation
 import "errors"
 
 var (
-	errFailedToCastParameter                  = errors.New("failed to cast parameter to necessary type")
+	ErrFailedToCastParameter                  = errors.New("failed to cast parameter to necessary type")
 	errLengthOfParametersNotLengthOfMorphisms = errors.New("length of parameters is not equal to the length of morphisms")
 )
 
@@ -107,7 +107,7 @@ func (M *ConcatenationMorphism) tidyOutcome(root, end *Outcome) (*Outcome, error
 func (M *ConcatenationMorphism) Apply(root *Outcome, sigma Parameter) (*Outcome, error) {
 	sigmas, ok := sigma.Value().([]Parameter)
 	if !ok {
-		return nil, errFailedToCastParameter
+		return nil, ErrFailedToCastParameter
 	}
 	if len(sigmas) != len(M.Morphisms) {
 		return nil, errLengthOfParametersNotLengthOfMorphisms
