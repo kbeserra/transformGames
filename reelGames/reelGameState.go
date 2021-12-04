@@ -1,6 +1,8 @@
 package reelGames
 
-import "github.com/kbeserra/transformGames/representation"
+import (
+	"github.com/kbeserra/transformGames/representation"
+)
 
 type ReelGameState struct {
 	B Board
@@ -12,6 +14,6 @@ func (S ReelGameState) String() string {
 
 func (S ReelGameState) Copy() representation.GameState {
 	return &ReelGameState{
-		B: S.B.Copy().(Board),
+		B: *(S.B.Copy().(*Board)),
 	}
 }

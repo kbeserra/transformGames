@@ -69,7 +69,13 @@ func PrintOutcome(o *Outcome) {
 	if o.Previous != nil {
 		PrintOutcome(o.Previous)
 	}
-	fmt.Printf("M: %s\nState:\n%s\nAwards:\n", o.M.String(), o.State.String())
+	fmt.Printf("M: %s\n", o.M.String())
+	var stateString string
+	if o.State != nil {
+		stateString = o.State.String()
+	}
+	fmt.Printf("State:\n%s\n", stateString)
+	fmt.Printf("Awards:\n")
 	for _, a := range o.Awards {
 		fmt.Printf("\t%s\n", a.String())
 	}

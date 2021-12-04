@@ -117,3 +117,27 @@ func (b *Board) RemoveCells(cells [][2]int) error {
 	}
 	return nil
 }
+
+func (b *Board) ProjectToLine(rows []int) ([]string, error) {
+	n := len(rows)
+	if n > len(b.Symbols) {
+		n = len(b.Symbols)
+	}
+	rtn := make([]string, n)
+	for i := 0; i < n; i++ {
+		rtn[i] = b.Symbols[i][rows[i]]
+	}
+	return rtn, nil
+}
+
+func (b *Board) RemoveRow(row int) error {
+	for r, col := range b.Symbols {
+		if row+1 == len(col) {
+			b.Symbols[r] = col[:row]
+		} else if row+1 < len(col) {
+			b.Symbols[r] = append(col[:row], col[row+1:]...)
+		}
+	}
+
+	return nil
+}

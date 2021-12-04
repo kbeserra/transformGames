@@ -1,6 +1,8 @@
 package representation
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrFailedToCastParameter                  = errors.New("failed to cast parameter to necessary type")
@@ -105,10 +107,15 @@ func (M *ConcatenationMorphism) tidyOutcome(root, end *Outcome) (*Outcome, error
 }
 
 func (M *ConcatenationMorphism) Apply(root *Outcome, sigma Parameter) (*Outcome, error) {
-	sigmas, ok := sigma.Value().([]Parameter)
+
+	s, ok := sigma.(*SequenceParameter)
+
 	if !ok {
 		return nil, ErrFailedToCastParameter
 	}
+
+	sigmas := s.Sigmas
+
 	if len(sigmas) != len(M.Morphisms) {
 		return nil, errLengthOfParametersNotLengthOfMorphisms
 	}
@@ -134,7 +141,10 @@ func (M *ConcatenationMorphism) EnumerateParameters() (Parameterization, error) 
 		}
 		enumerations[i] = e
 	}
-	return nil, nil
+
+	return &ConcatenationParameterization{
+		Parameterizations: enumerations,
+	}, nil
 }
 
 func (M *ConcatenationMorphism) Awards() []Award {

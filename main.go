@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	former := reelGames.BoardFromReelsMorphism{
+	former := &reelGames.BoardFromReelsMorphism{
 		Name:    "former",
 		Heights: []uint{3, 3, 3},
 		Reels: [][]string{
@@ -19,7 +19,20 @@ func main() {
 		},
 	}
 
-	params, err := former.EnumerateParameters()
+	rowRemover := &reelGames.RemoveRowMorphism{
+		Name: "remover",
+		Row:  0,
+	}
+
+	game := representation.ConcatenationMorphism{
+		Name:         "game",
+		Morphisms:    []representation.Morphism{former, rowRemover},
+		Expand:       true,
+		IgnoreStates: false,
+		IgnoreAwards: false,
+	}
+
+	params, err := game.EnumerateParameters()
 	if err != nil {
 		panic(err)
 	}
@@ -29,10 +42,11 @@ func main() {
 	fmt.Println(size, weight)
 	for i := uint64(0); i < weight; i++ {
 		p := params.WeightedEnumeration(i)
-		o, err := former.Apply(nil, p)
+		o, err := game.Apply(nil, p)
 		if err != nil {
 			panic(err)
 		}
+		fmt.Println("------------------------")
 		representation.PrintOutcome(o)
 	}
 
