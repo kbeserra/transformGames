@@ -1,54 +1,47 @@
 package main
 
-import (
-	"fmt"
-
-	"github.com/kbeserra/transformGames/reelGames"
-	"github.com/kbeserra/transformGames/representation"
-)
-
 func main() {
 
-	former := &reelGames.BoardFromReelsMorphism{
-		Name:    "former",
-		Heights: []uint{3, 3, 3},
-		Reels: [][]string{
-			{"A", "C", "B", "C", "C", "B"},
-			{"A", "C", "B", "C", "C", "B"},
-			{"A", "C", "B", "C", "C", "B"},
-		},
-	}
-
-	rowRemover := &reelGames.RemoveRowMorphism{
-		Name: "remover",
-		Row:  0,
-	}
-
-	game := representation.ConcatenationMorphism{
-		Name:         "game",
-		Morphisms:    []representation.Morphism{former, rowRemover},
-		Expand:       true,
-		IgnoreStates: false,
-		IgnoreAwards: false,
-	}
-
-	params, err := game.EnumerateParameters()
-	if err != nil {
-		panic(err)
-	}
-
-	size := params.EnumerationCardinality()
-	weight := params.WeightedEnumerationCardinality()
-	fmt.Println(size, weight)
-	for i := uint64(0); i < weight; i++ {
-		p := params.WeightedEnumeration(i)
-		o, err := game.Apply(nil, p)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("------------------------")
-		representation.PrintOutcome(o)
-	}
+	// former := &reelGames.BoardFromReelsMorphism{
+	// 	Name:    "former",
+	// 	Heights: []uint{3, 3, 3},
+	// 	Reels: [][]string{
+	// 		{"A", "C", "B", "C", "C", "B"},
+	// 		{"A", "C", "B", "C", "C", "B"},
+	// 		{"A", "C", "B", "C", "C", "B"},
+	// 	},
+	// }
+	//
+	// rowRemover := &reelGames.RemoveRowMorphism{
+	// 	Name: "remover",
+	// 	Row:  0,
+	// }
+	//
+	// game := representation.ConcatenationMorphism{
+	// 	Name:         "game",
+	// 	Morphisms:    []representation.Morphism{former, rowRemover},
+	// 	Expand:       true,
+	// 	IgnoreStates: false,
+	// 	IgnoreAwards: false,
+	// }
+	//
+	// params, err := game.EnumerateParameters()
+	// if err != nil {
+	// 	panic(err)
+	// }
+	//
+	// size := params.EnumerationCardinality()
+	// weight := params.WeightedEnumerationCardinality()
+	// fmt.Println(size, weight)
+	// for i := uint64(0); i < weight; i++ {
+	// 	p := params.WeightedEnumeration(i)
+	// 	o, err := game.Apply(nil, p)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	fmt.Println("------------------------")
+	// 	representation.PrintOutcome(o)
+	// }
 
 	// idMorphism := &representation.IdentityMorphism{
 	// 	Name: "id",

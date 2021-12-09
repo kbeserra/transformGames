@@ -141,3 +141,19 @@ func (b *Board) RemoveRow(row int) error {
 
 	return nil
 }
+
+func (b *Board) SymbolContainedPerCol(sets []map[string]struct{}) []int {
+	rtn := make([]int, len(sets))
+
+	for c, set := range sets {
+		if c < len(b.Symbols) {
+			for _, s := range b.Symbols[c] {
+				if _, in := set[s]; in {
+					rtn[c]++
+				}
+			}
+		}
+	}
+
+	return rtn
+}
