@@ -1,15 +1,42 @@
 package reelGames
 
 import (
+	"sort"
+
 	"github.com/kbeserra/transformGames/representation"
 )
 
 type LineWinsEvaluationMorphism struct {
 	Name  string
 	Lines [][]uint
+	PaySequences []SymbolSequence
+	PayTable     map[string][]representation.Award
 }
 
 func (M *LineWinsEvaluationMorphism) Init() error {
+
+	paySeqOrder := func(sIndex, tIndex int) bool {
+		s := M.PaySequences[sIndex]
+		t := M.PaySequences[tIndex]
+		sAwards, sIn := M.PayTable[s.Name]
+		if !sIn {
+			sAwards = nil
+		}
+		tAwards, tIn := M.PayTable[t.Name]
+		if !tIn {
+			tAwards = nil
+		}
+		sValue := representation.AwardValueSum(sAwards)
+		tValue := representation.AwardValueSum(tAwards)
+
+		if sValue == tValue {
+			return s.subSetEq(t)
+		}
+		return sValue > tValue
+	}
+
+	sort.SliceStable(M.PaySequences, paySeqOrder)
+
 	return nil
 }
 

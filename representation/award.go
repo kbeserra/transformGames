@@ -4,7 +4,7 @@ type Award interface {
 	Value() float64
 	String() string
 	SubAwards() []Award
-	Copy() *Award
+	Copy() Award
 }
 
 func AwardValueSum(awards []Award) float64 {

@@ -63,7 +63,7 @@ func MergeOutcomeChannels(oChan []<-chan *Outcome) <-chan *Outcome {
 }
 
 /*
-	Temperary, will be removed with addition of a more appropiate package for this functionality.
+	Temporary, will be removed with addition of a more appropiate package for this functionality.
 */
 func PrintOutcome(o *Outcome) {
 	if o.Previous != nil {

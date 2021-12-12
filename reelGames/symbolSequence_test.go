@@ -3,10 +3,10 @@ package reelGames
 import "testing"
 
 func TestMatchesLine(t *testing.T) {
-	s := symbolSequence{
-		name:   "testSequence",
-		offSet: 1,
-		components: []map[string]struct{}{
+	s := SymbolSequence{
+		Name:   "testSequence",
+		OffSet: 1,
+		Components: []map[string]struct{}{
 			{"A": struct{}{}, "C": struct{}{}},
 			{"A": struct{}{}},
 		},
@@ -55,10 +55,10 @@ func TestMatchesLine(t *testing.T) {
 }
 
 func TestNumWays(t *testing.T) {
-	s := symbolSequence{
-		name:   "testSequence",
-		offSet: 1,
-		components: []map[string]struct{}{
+	s := SymbolSequence{
+		Name:   "testSequence",
+		OffSet: 1,
+		Components: []map[string]struct{}{
 			{"A": struct{}{}, "C": struct{}{}},
 			{"A": struct{}{}},
 		},
@@ -107,17 +107,17 @@ func TestNumWays(t *testing.T) {
 }
 
 func TestSubSetEq(t *testing.T) {
-	s := symbolSequence{
-		name:   "testSequence",
-		offSet: 1,
-		components: []map[string]struct{}{
+	s := SymbolSequence{
+		Name:   "testSequence",
+		OffSet: 1,
+		Components: []map[string]struct{}{
 			{"A": struct{}{}, "C": struct{}{}},
 			{"A": struct{}{}},
 		},
 	}
 
 	tests := []struct {
-		seq        symbolSequence
+		seq        SymbolSequence
 		isSubSetEq bool
 		msg        string
 	}{
@@ -125,9 +125,9 @@ func TestSubSetEq(t *testing.T) {
 			isSubSetEq: true,
 			msg:        "the two are equal",
 		},
-		{seq: symbolSequence{
-			offSet: 1,
-			components: []map[string]struct{}{
+		{seq: SymbolSequence{
+			OffSet: 1,
+			Components: []map[string]struct{}{
 				{"A": struct{}{}, "C": struct{}{}},
 				{"A": struct{}{}, "B": struct{}{}},
 			},
@@ -135,9 +135,9 @@ func TestSubSetEq(t *testing.T) {
 			isSubSetEq: true,
 			msg:        "last component allows more options",
 		},
-		{seq: symbolSequence{
-			offSet: 1,
-			components: []map[string]struct{}{
+		{seq: SymbolSequence{
+			OffSet: 1,
+			Components: []map[string]struct{}{
 				{"A": struct{}{}, "C": struct{}{}},
 				{"B": struct{}{}},
 			},
@@ -145,9 +145,9 @@ func TestSubSetEq(t *testing.T) {
 			isSubSetEq: false,
 			msg:        "last component is disjoint from corresponding component",
 		},
-		{seq: symbolSequence{
-			offSet: 0,
-			components: []map[string]struct{}{
+		{seq: SymbolSequence{
+			OffSet: 0,
+			Components: []map[string]struct{}{
 				{"A": struct{}{}},
 				{"A": struct{}{}, "C": struct{}{}},
 				{"A": struct{}{}},
@@ -157,9 +157,9 @@ func TestSubSetEq(t *testing.T) {
 			msg:        "offset inccures more restrictions",
 		},
 
-		{seq: symbolSequence{
-			offSet: 1,
-			components: []map[string]struct{}{
+		{seq: SymbolSequence{
+			OffSet: 1,
+			Components: []map[string]struct{}{
 				{"A": struct{}{}, "C": struct{}{}},
 				{"A": struct{}{}},
 				{"A": struct{}{}},

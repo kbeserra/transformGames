@@ -1,21 +1,21 @@
 package reelGames
 
-type symbolSequence struct {
-	name       string
-	offSet     int
-	components []map[string]struct{}
+type SymbolSequence struct {
+	Name       string
+	OffSet     int
+	Components []map[string]struct{}
 }
 
-func (s symbolSequence) matchesLine(line []string) bool {
-	if len(line) < s.offSet+len(s.components) {
+func (s SymbolSequence) matchesLine(line []string) bool {
+	if len(line) < s.OffSet+len(s.Components) {
 		return false
 	}
 
-	for i, sym := range line[s.offSet:] {
-		if len(s.components) <= i {
+	for i, sym := range line[s.OffSet:] {
+		if len(s.Components) <= i {
 			break
 		}
-		if _, in := s.components[i][sym]; !in {
+		if _, in := s.Components[i][sym]; !in {
 			return false
 		}
 	}
@@ -23,19 +23,19 @@ func (s symbolSequence) matchesLine(line []string) bool {
 	return true
 }
 
-func (s symbolSequence) numWays(cols [][]string) int {
-	if len(cols) < s.offSet+len(s.components) {
+func (s SymbolSequence) numWays(cols [][]string) int {
+	if len(cols) < s.OffSet+len(s.Components) {
 		return 0
 	}
 
 	count, col_count := 1, 0
-	for i, col := range cols[s.offSet:] {
-		if len(s.components) <= i {
+	for i, col := range cols[s.OffSet:] {
+		if len(s.Components) <= i {
 			break
 		}
 		col_count = 0
 		for _, sym := range col {
-			if _, in := s.components[i][sym]; in {
+			if _, in := s.Components[i][sym]; in {
 				col_count++
 			}
 		}
@@ -48,19 +48,19 @@ func (s symbolSequence) numWays(cols [][]string) int {
 	return count
 }
 
-func (s symbolSequence) subSetEq(t symbolSequence) bool {
+func (s SymbolSequence) subSetEq(t SymbolSequence) bool {
 
 	// t must be "shorter" than s. That is, t makes few restrictions.
-	if t.offSet < s.offSet ||
-		s.offSet+len(s.components) < t.offSet+len(t.components) {
+	if t.OffSet < s.OffSet ||
+		s.OffSet+len(s.Components) < t.OffSet+len(t.Components) {
 		return false
 	}
 
-	// each of t's components must make fewer restrictions.
-	for i, a := range t.components {
-		// a is representing the (t.offSet + i)th compnent.
+	// each of t's Components must make fewer restrictions.
+	for i, a := range t.Components {
+		// a is representing the (t.OffSet + i)th compnent.
 		// we must compare that to the corresponding compnent of s.
-		b := s.components[t.offSet-s.offSet+i]
+		b := s.Components[t.OffSet-s.OffSet+i]
 		// need b to be a subset of a
 		for sym := range b {
 			if _, in := a[sym]; !in {
