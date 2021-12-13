@@ -40,6 +40,7 @@ func (o *Outcome) AccumulateAwards(upperBound *Outcome) []Award {
 	o.ApplyToSegment(upperBound, func(p *Outcome) {
 		rtn = append(rtn, p.Awards...)
 	})
+
 	return rtn
 }
 
@@ -63,13 +64,15 @@ func MergeOutcomeChannels(oChan []<-chan *Outcome) <-chan *Outcome {
 }
 
 /*
-	Temporary, will be removed with addition of a more appropiate package for this functionality.
+	Temporary, will be removed with addition of a more appropriate package for this functionality.
 */
 func PrintOutcome(o *Outcome) {
 	if o.Previous != nil {
 		PrintOutcome(o.Previous)
 	}
-	fmt.Printf("M: %s\n", o.M.String())
+	if o.M != nil {
+		fmt.Printf("M: %s\n", o.M.String())
+	}
 	var stateString string
 	if o.State != nil {
 		stateString = o.State.String()

@@ -10,7 +10,7 @@ type Award interface {
 func AwardValueSum(awards []Award) float64 {
 	rtn := 0.
 	for _, a := range awards {
-		rtn += a.Value() + AwardValueSum(a.SubAwards())
+		rtn += a.Value()
 	}
 	return rtn
 }

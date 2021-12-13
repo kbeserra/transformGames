@@ -7,8 +7,8 @@ import (
 )
 
 type LineWinsEvaluationMorphism struct {
-	Name  string
-	Lines [][]uint
+	Name         string
+	Lines        [][]int
 	PaySequences []SymbolSequence
 	PayTable     map[string][]representation.Award
 }
@@ -44,8 +44,46 @@ func (M *LineWinsEvaluationMorphism) String() string {
 	return M.Name
 }
 
-func (M *LineWinsEvaluationMorphism) Apply(o *representation.Outcome, sigma representation.Parameter) (*representation.Outcome, error) {
-	return nil, nil
+func (M *LineWinsEvaluationMorphism) Apply(o *representation.Outcome, _ representation.Parameter) (*representation.Outcome, error) {
+
+	S, ok := o.State.Copy().(*ReelGameState)
+	if !ok {
+		return nil, representation.ErrFailedToCastFromTo(o.State, &ReelGameState{})
+	}
+
+	awards := make([]representation.Award, 0)
+
+	for _, l := range M.Lines {
+		line, err := S.B.ProjectToLine(l)
+		if err != nil {
+			return nil, err
+		}
+		for _, seq := range M.PaySequences {
+			if seq.matchesLine(line) {
+				if A, in := M.PayTable[seq.Name]; in {
+					cells := make([][]int, len(line))
+					for i, r := range l {
+						cells[i] = []int{r}
+					}
+					award := BoardAward{
+						name:   seq.Name,
+						cells:  cells,
+						awards: A,
+					}
+
+					awards = append(awards, award)
+				}
+				break
+			}
+		}
+	}
+
+	return &representation.Outcome{
+		Previous: o,
+		M:        M,
+		State:    S,
+		Awards:   awards,
+	}, nil
 }
 
 func (M *LineWinsEvaluationMorphism) EnumerateParameters() (representation.Parameterization, error) {
@@ -58,5 +96,9 @@ func (M *LineWinsEvaluationMorphism) EnumerateParameters() (representation.Param
 }
 
 func (M *LineWinsEvaluationMorphism) Awards() []representation.Award {
-	return nil
+	rtn := make([]representation.Award, 0)
+	for _, awards := range M.PayTable {
+		rtn = append(rtn, awards...)
+	}
+	return rtn
 }

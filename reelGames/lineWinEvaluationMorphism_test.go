@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-func TestLineWinsEvaluationMorphismInit(t *testing.T) {
-	M := LineWinsEvaluationMorphism{
+func createTestingMorphism() LineWinsEvaluationMorphism {
+	return LineWinsEvaluationMorphism{
 		Name: "some test",
-		Lines: [][]uint{
+		Lines: [][]int{
 			{0, 0, 0},
 			{1, 1, 1},
 			{2, 2, 2},
@@ -18,53 +18,52 @@ func TestLineWinsEvaluationMorphismInit(t *testing.T) {
 				Name:   "3*C",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"C": struct{}{}},
-					{"C": struct{}{}},
-					{"C": struct{}{}},
+					{"C": struct{}{}, "W": {}},
+					{"C": struct{}{}, "W": {}},
+					{"C": struct{}{}, "W": {}},
 				},
 			},
 			{
 				Name:   "3*D",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"D": struct{}{}},
-					{"D": struct{}{}},
-					{"D": struct{}{}},
+					{"D": struct{}{}, "W": {}},
+					{"D": struct{}{}, "W": {}},
+					{"D": struct{}{}, "W": {}},
 				},
 			},
 			{
 				Name:   "2*C",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"C": struct{}{}},
-					{"C": struct{}{}},
+					{"C": struct{}{}, "W": {}},
+					{"C": struct{}{}, "W": {}},
 				},
 			},
 			{
 				Name:   "2*A",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"A": struct{}{}},
-					{"A": struct{}{}},
+					{"A": struct{}{}, "W": {}},
+					{"A": struct{}{}, "W": {}},
 				},
 			},
 			{
 				Name:   "3*A",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"A": struct{}{}},
-					{"A": struct{}{}},
-					{"A": struct{}{}},
+					{"A": struct{}{}, "W": {}},
+					{"A": struct{}{}, "W": {}},
+					{"A": struct{}{}, "W": {}},
 				},
 			},
-
 			{
 				Name:   "3*B",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"B": struct{}{}},
-					{"B": struct{}{}},
-					{"B": struct{}{}},
+					{"B": struct{}{}, "W": {}},
+					{"B": struct{}{}, "W": {}},
+					{"B": struct{}{}, "W": {}},
 				},
 			},
 
@@ -72,8 +71,8 @@ func TestLineWinsEvaluationMorphismInit(t *testing.T) {
 				Name:   "2*B",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"B": struct{}{}},
-					{"B": struct{}{}},
+					{"B": struct{}{}, "W": {}},
+					{"B": struct{}{}, "W": {}},
 				},
 			},
 		},
@@ -98,6 +97,10 @@ func TestLineWinsEvaluationMorphismInit(t *testing.T) {
 			}},
 		},
 	}
+}
+
+func TestLineWinsEvaluationMorphismInit(t *testing.T) {
+	M := createTestingMorphism()
 	err := M.Init()
 	if err != nil {
 		t.Error(err)
@@ -115,4 +118,69 @@ func TestLineWinsEvaluationMorphismInit(t *testing.T) {
 			t.Errorf("incorrect order. Expected %s; got %s", names[i], s.Name)
 		}
 	}
+}
+
+func TestLineWinsEvaluationMorphismApply(t *testing.T) {
+	M := createTestingMorphism()
+	err := M.Init()
+	if err != nil {
+		t.Error(err)
+	}
+
+	originalBoard := Board{
+		Symbols: [][]string{
+			{"A", "C", "W"},
+			{"A", "C", "W"},
+			{"A", "D", "A"},
+		},
+	}
+
+	o := &representation.Outcome{
+		Previous: nil,
+		M:        nil,
+		State: ReelGameState{
+			B: originalBoard,
+		},
+		Awards: nil,
+	}
+
+	p, err := M.Apply(o, &representation.ConstantParameter{C: nil})
+	if err != nil {
+		t.Error(err)
+	}
+	newState, ok := p.State.(*ReelGameState)
+	if !ok {
+		t.Errorf("expected new state of %T; got %T", &ReelGameState{}, p.State)
+	}
+	newBoard := newState.B
+
+	if originalBoard.String() != newBoard.String() {
+		t.Error("expected board not to change; board was altered")
+	}
+
+	awards := p.AccumulateAwards(nil)
+	awardNames := map[string]bool{
+		"3*A cells: [[0], [0], [0]]": false,
+		"2*C cells: [[1], [1], [1]]": false,
+		"3*A cells: [[2], [2], [2]]": false,
+	}
+
+	if len(awards) != len(awardNames) {
+		t.Errorf("number of returned awards is not %d, got %d", len(awardNames), len(awards))
+	}
+	for _, a := range awards {
+		if _, in := awardNames[a.String()]; in {
+			awardNames[a.String()] = true
+		}
+	}
+	for name, in := range awardNames {
+		if !in {
+			t.Errorf("award with name %s not found in returnec awards", name)
+		}
+	}
+	awardValue := M.PayTable["3*A"][0].Value() + M.PayTable["2*C"][0].Value() + M.PayTable["3*A"][0].Value()
+	if awardValue != representation.AwardValueSum(awards) {
+		t.Errorf("expected award value of %f; got %f", awardValue, representation.AwardValueSum(awards))
+	}
+
 }
