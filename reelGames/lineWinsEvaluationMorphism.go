@@ -61,9 +61,10 @@ func (M *LineWinsEvaluationMorphism) Apply(o *representation.Outcome, _ represen
 		for _, seq := range M.PaySequences {
 			if seq.matchesLine(line) {
 				if A, in := M.PayTable[seq.Name]; in {
-					cells := make([][]int, len(line))
-					for i, r := range l {
-						cells[i] = []int{r}
+					cells := make([][2]int, len(line))
+					for c, r := range l {
+						cells[c][BoardCellRow] = r
+						cells[c][BoardCellColumn] = c
 					}
 					award := BoardAward{
 						name:   seq.Name,

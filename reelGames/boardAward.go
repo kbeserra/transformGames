@@ -8,7 +8,7 @@ import (
 
 type BoardAward struct {
 	name   string
-	cells  [][]int
+	cells  [][2]int
 	awards []representation.Award
 }
 
@@ -21,15 +21,9 @@ func (ba BoardAward) String() string {
 	sb.WriteString(ba.name)
 	if ba.cells != nil {
 		sb.WriteString(" cells: [")
-		for i, col := range ba.cells {
-			sb.WriteString("[")
-			for j, r := range col {
-				sb.WriteString(fmt.Sprintf("%d", r))
-				if j+1 < len(col) {
-					sb.WriteString(", ")
-				}
-			}
-			sb.WriteString("]")
+		for i, c := range ba.cells {
+			row, col := c[BoardCellRow], c[BoardCellColumn]
+			sb.WriteString(fmt.Sprintf("(%d, %d)", row, col))
 			if i+1 < len(ba.cells) {
 				sb.WriteString(", ")
 			}
@@ -48,10 +42,11 @@ func (ba BoardAward) Copy() representation.Award {
 	for i, a := range ba.awards {
 		awards[i] = a.Copy()
 	}
-	cells := make([][]int, len(ba.cells))
-	for i, col := range ba.cells {
-		cells[i] = make([]int, len(col))
-		copy(cells[i], col)
+	cells := make([][2]int, len(ba.cells))
+	for i, cell := range ba.cells {
+		for j, x := range cell {
+			cells[i][j] = x
+		}
 	}
 
 	return &BoardAward{

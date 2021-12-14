@@ -6,6 +6,7 @@ import (
 )
 
 func createTestingMorphism() LineWinsEvaluationMorphism {
+
 	return LineWinsEvaluationMorphism{
 		Name: "some test",
 		Lines: [][]int{
@@ -18,52 +19,52 @@ func createTestingMorphism() LineWinsEvaluationMorphism {
 				Name:   "3*C",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"C": struct{}{}, "W": {}},
-					{"C": struct{}{}, "W": {}},
-					{"C": struct{}{}, "W": {}},
+					{"C": {}, "W": {}},
+					{"C": {}, "W": {}},
+					{"C": {}, "W": {}},
 				},
 			},
 			{
 				Name:   "3*D",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"D": struct{}{}, "W": {}},
-					{"D": struct{}{}, "W": {}},
-					{"D": struct{}{}, "W": {}},
+					{"D": {}, "W": {}},
+					{"D": {}, "W": {}},
+					{"D": {}, "W": {}},
 				},
 			},
 			{
 				Name:   "2*C",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"C": struct{}{}, "W": {}},
-					{"C": struct{}{}, "W": {}},
+					{"C": {}, "W": {}},
+					{"C": {}, "W": {}},
 				},
 			},
 			{
 				Name:   "2*A",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"A": struct{}{}, "W": {}},
-					{"A": struct{}{}, "W": {}},
+					{"A": {}, "W": {}},
+					{"A": {}, "W": {}},
 				},
 			},
 			{
 				Name:   "3*A",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"A": struct{}{}, "W": {}},
-					{"A": struct{}{}, "W": {}},
-					{"A": struct{}{}, "W": {}},
+					{"A": {}, "W": {}},
+					{"A": {}, "W": {}},
+					{"A": {}, "W": {}},
 				},
 			},
 			{
 				Name:   "3*B",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"B": struct{}{}, "W": {}},
-					{"B": struct{}{}, "W": {}},
-					{"B": struct{}{}, "W": {}},
+					{"B": {}, "W": {}},
+					{"B": {}, "W": {}},
+					{"B": {}, "W": {}},
 				},
 			},
 
@@ -71,8 +72,8 @@ func createTestingMorphism() LineWinsEvaluationMorphism {
 				Name:   "2*B",
 				OffSet: 0,
 				Components: []map[string]struct{}{
-					{"B": struct{}{}, "W": {}},
-					{"B": struct{}{}, "W": {}},
+					{"B": {}, "W": {}},
+					{"B": {}, "W": {}},
 				},
 			},
 		},
@@ -160,9 +161,9 @@ func TestLineWinsEvaluationMorphismApply(t *testing.T) {
 
 	awards := p.AccumulateAwards(nil)
 	awardNames := map[string]bool{
-		"3*A cells: [[0], [0], [0]]": false,
-		"2*C cells: [[1], [1], [1]]": false,
-		"3*A cells: [[2], [2], [2]]": false,
+		"3*A cells: [(0, 0), (0, 1), (0, 2)]": false,
+		"2*C cells: [(1, 0), (1, 1), (1, 2)]": false,
+		"3*A cells: [(2, 0), (2, 1), (2, 2)]": false,
 	}
 
 	if len(awards) != len(awardNames) {
@@ -175,7 +176,7 @@ func TestLineWinsEvaluationMorphismApply(t *testing.T) {
 	}
 	for name, in := range awardNames {
 		if !in {
-			t.Errorf("award with name %s not found in returnec awards", name)
+			t.Errorf("award with name %s not found in returned awards", name)
 		}
 	}
 	awardValue := M.PayTable["3*A"][0].Value() + M.PayTable["2*C"][0].Value() + M.PayTable["3*A"][0].Value()

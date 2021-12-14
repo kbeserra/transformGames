@@ -104,7 +104,7 @@ func (b *Board) FillFromReels(reels [][]string, stops []int) error {
 	return nil
 }
 
-func (b *Board) RemoveCells(cells [][2]int) error {
+func (b *Board) RemoveCells(cells [][]int) error {
 	for _, c := range cells {
 		row, col := c[BoardCellRow], c[BoardCellColumn]
 		if col >= len(b.Symbols) {
