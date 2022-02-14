@@ -68,7 +68,7 @@ func (M *BoardFromReelsMorphism) EnumerateParameters() (representation.Parameter
 		}
 	}
 
-	return &representation.ConcatenationParameterization{
+	return &representation.SequenceParameterization{
 		ParameterizationBase: representation.ParameterizationBase{
 			M: M,
 		},

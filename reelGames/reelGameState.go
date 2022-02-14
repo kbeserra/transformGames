@@ -12,7 +12,7 @@ func (S ReelGameState) String() string {
 	return S.B.String()
 }
 
-func (S ReelGameState) Copy() representation.GameState {
+func (S ReelGameState) Copy() representation.OutcomeState {
 	return &ReelGameState{
 		B: *(S.B.Copy().(*Board)),
 	}

@@ -62,7 +62,7 @@ func (b Board) String() string {
 	return sb.String()
 }
 
-func (b Board) Copy() representation.GameState {
+func (b Board) Copy() representation.OutcomeState {
 	symbs := make([][]string, len(b.Symbols))
 	for i, col := range b.Symbols {
 		symbs[i] = make([]string, len(col))

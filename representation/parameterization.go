@@ -76,7 +76,7 @@ func (cpe *ConstantParameterization) Freeze(frozen map[string]Parameterization) 
 /*
 
  */
-type ConcatenationParameterization struct {
+type SequenceParameterization struct {
 	ParameterizationBase
 	Parameterizations []Parameterization
 
@@ -85,31 +85,31 @@ type ConcatenationParameterization struct {
 	weight uint64
 }
 
-func (cpe *ConcatenationParameterization) AssignMorphism(M Morphism) {
-	cpe.M = M
+func (sp *SequenceParameterization) AssignMorphism(M Morphism) {
+	sp.M = M
 }
 
-func (cpe *ConcatenationParameterization) AssociatedMorphism() Morphism {
-	return cpe.M
+func (sp *SequenceParameterization) AssociatedMorphism() Morphism {
+	return sp.M
 }
 
-func (cpe *ConcatenationParameterization) cache() {
-	cpe.length = 1
-	cpe.weight = 1
-	for _, p := range cpe.Parameterizations {
-		cpe.length *= p.EnumerationCardinality()
-		cpe.weight *= p.WeightedEnumerationCardinality()
+func (sp *SequenceParameterization) cache() {
+	sp.length = 1
+	sp.weight = 1
+	for _, p := range sp.Parameterizations {
+		sp.length *= p.EnumerationCardinality()
+		sp.weight *= p.WeightedEnumerationCardinality()
 	}
-	cpe.cached = true
+	sp.cached = true
 }
 
-func (cpe *ConcatenationParameterization) Enumeration(n uint64) (Parameter, uint64) {
-	if !cpe.cached {
-		cpe.cache()
+func (sp *SequenceParameterization) Enumeration(n uint64) (Parameter, uint64) {
+	if !sp.cached {
+		sp.cache()
 	}
-	rtn := make([]Parameter, len(cpe.Parameterizations))
+	rtn := make([]Parameter, len(sp.Parameterizations))
 	var w, weight uint64 = 0, 0
-	for i, p := range cpe.Parameterizations {
+	for i, p := range sp.Parameterizations {
 		l := p.EnumerationCardinality()
 		rtn[i], w = p.Enumeration(n % l)
 		weight *= w
@@ -121,12 +121,12 @@ func (cpe *ConcatenationParameterization) Enumeration(n uint64) (Parameter, uint
 	}, weight
 }
 
-func (cpe *ConcatenationParameterization) WeightedEnumeration(n uint64) Parameter {
-	if !cpe.cached {
-		cpe.cache()
+func (sp *SequenceParameterization) WeightedEnumeration(n uint64) Parameter {
+	if !sp.cached {
+		sp.cache()
 	}
-	rtn := make([]Parameter, len(cpe.Parameterizations))
-	for i, p := range cpe.Parameterizations {
+	rtn := make([]Parameter, len(sp.Parameterizations))
+	for i, p := range sp.Parameterizations {
 		l := p.WeightedEnumerationCardinality()
 		rtn[i] = p.WeightedEnumeration(n % l)
 		n /= l
@@ -137,46 +137,46 @@ func (cpe *ConcatenationParameterization) WeightedEnumeration(n uint64) Paramete
 	}
 }
 
-func (cpe *ConcatenationParameterization) EnumerationCardinality() uint64 {
-	if !cpe.cached {
-		cpe.cache()
+func (sp *SequenceParameterization) EnumerationCardinality() uint64 {
+	if !sp.cached {
+		sp.cache()
 	}
-	return cpe.length
+	return sp.length
 }
 
-func (cpe *ConcatenationParameterization) WeightedEnumerationCardinality() uint64 {
-	if !cpe.cached {
-		cpe.cache()
+func (sp *SequenceParameterization) WeightedEnumerationCardinality() uint64 {
+	if !sp.cached {
+		sp.cache()
 	}
-	return cpe.weight
+	return sp.weight
 }
 
-func (cpe *ConcatenationParameterization) Copy() Parameterization {
-	parameterizations := make([]Parameterization, len(cpe.Parameterizations))
-	for i, p := range cpe.Parameterizations {
+func (sp *SequenceParameterization) Copy() Parameterization {
+	parameterizations := make([]Parameterization, len(sp.Parameterizations))
+	for i, p := range sp.Parameterizations {
 		parameterizations[i] = p.Copy()
 	}
-	return &ConcatenationParameterization{
+	return &SequenceParameterization{
 		ParameterizationBase: ParameterizationBase{
-			M: cpe.M,
+			M: sp.M,
 		},
 		Parameterizations: parameterizations,
 	}
 }
 
-func (cpe *ConcatenationParameterization) Freeze(frozen map[string]Parameterization) Parameterization {
-	if cpe.AssociatedMorphism() != nil {
-		if p, in := frozen[cpe.AssociatedMorphism().String()]; in {
+func (sp *SequenceParameterization) Freeze(frozen map[string]Parameterization) Parameterization {
+	if sp.AssociatedMorphism() != nil {
+		if p, in := frozen[sp.AssociatedMorphism().String()]; in {
 			return p
 		}
 	}
-	parameterizations := make([]Parameterization, len(cpe.Parameterizations))
-	for i, p := range cpe.Parameterizations {
+	parameterizations := make([]Parameterization, len(sp.Parameterizations))
+	for i, p := range sp.Parameterizations {
 		parameterizations[i] = p.Freeze(frozen)
 	}
-	return &ConcatenationParameterization{
+	return &SequenceParameterization{
 		ParameterizationBase: ParameterizationBase{
-			M: cpe.M,
+			M: sp.M,
 		},
 		Parameterizations: parameterizations,
 	}
@@ -193,8 +193,8 @@ type IntegerIntervalParameterization struct {
 	UpperBound int
 	Weights    []uint64
 
-	cached             bool
-	cummulativeWeights []uint64
+	cached            bool
+	cumulativeWeights []uint64
 }
 
 func (iipe *IntegerIntervalParameterization) AssignMorphism(M Morphism) {
@@ -206,7 +206,7 @@ func (iipe *IntegerIntervalParameterization) AssociatedMorphism() Morphism {
 }
 
 func (iipe *IntegerIntervalParameterization) cache() {
-	iipe.cummulativeWeights = make([]uint64, uint64(iipe.UpperBound-iipe.LowerBound))
+	iipe.cumulativeWeights = make([]uint64, uint64(iipe.UpperBound-iipe.LowerBound))
 	var w uint64 = 0
 	for i := 0; i < (iipe.UpperBound - iipe.LowerBound); i++ {
 		if iipe.Weights != nil {
@@ -214,7 +214,7 @@ func (iipe *IntegerIntervalParameterization) cache() {
 		} else {
 			w++
 		}
-		iipe.cummulativeWeights[i] = w
+		iipe.cumulativeWeights[i] = w
 	}
 	iipe.cached = true
 }
@@ -239,7 +239,7 @@ func (iipe *IntegerIntervalParameterization) WeightedEnumeration(n uint64) Param
 		iipe.cache()
 	}
 	var i uint64 = 0
-	for ; iipe.cummulativeWeights[i] <= n; i++ {
+	for ; iipe.cumulativeWeights[i] <= n; i++ {
 	}
 	return &ConstantParameter{
 		C: iipe.LowerBound + int(i),
@@ -257,7 +257,7 @@ func (iipe *IntegerIntervalParameterization) WeightedEnumerationCardinality() ui
 	if !iipe.cached {
 		iipe.cache()
 	}
-	return iipe.cummulativeWeights[len(iipe.cummulativeWeights)-1]
+	return iipe.cumulativeWeights[len(iipe.cumulativeWeights)-1]
 }
 
 func (iipe *IntegerIntervalParameterization) Copy() Parameterization {

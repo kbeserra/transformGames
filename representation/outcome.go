@@ -6,10 +6,11 @@ import (
 )
 
 type Outcome struct {
-	Previous *Outcome
-	M        Morphism
-	State    GameState
-	Awards   []Award
+	Previous  *Outcome
+	M         Morphism
+	Parameter interface{}
+	State     OutcomeState
+	Awards    []Award
 }
 
 func (o *Outcome) ApplyToSegment(upperBound *Outcome, f func(*Outcome)) {
@@ -27,8 +28,16 @@ func (o *Outcome) AccumulateMorphisms(upperBound *Outcome) []Morphism {
 	return rtn
 }
 
-func (o *Outcome) AccumulateStates(upperBound *Outcome) []GameState {
-	rtn := make([]GameState, 0, 1)
+func (o *Outcome) AccumulateParameters(upperBound *Outcome) []interface{} {
+	rtn := make([]interface{}, 0, 1)
+	o.ApplyToSegment(upperBound, func(p *Outcome) {
+		rtn = append(rtn, p.Parameter)
+	})
+	return rtn
+}
+
+func (o *Outcome) AccumulateStates(upperBound *Outcome) []OutcomeState {
+	rtn := make([]OutcomeState, 0, 1)
 	o.ApplyToSegment(upperBound, func(p *Outcome) {
 		rtn = append(rtn, p.State)
 	})
@@ -42,6 +51,24 @@ func (o *Outcome) AccumulateAwards(upperBound *Outcome) []Award {
 	})
 
 	return rtn
+}
+
+func (p Outcome) Copy(weakerBound *Outcome) *Outcome {
+
+	AwardsCopy := make([]Award, len(p.Awards))
+	copy(AwardsCopy, p.Awards)
+
+	if p.Previous != nil && p.Previous != weakerBound {
+		return &Outcome{
+			Previous:  p.Previous.Copy(weakerBound),
+			M:         p.M,
+			Parameter: p.Parameter,
+			State:     p.State.Copy(),
+			Awards:    AwardsCopy,
+		}
+	} else {
+		return &p
+	}
 }
 
 func MergeOutcomeChannels(oChan []<-chan *Outcome) <-chan *Outcome {
